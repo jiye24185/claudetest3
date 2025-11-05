@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Roommate Picker</title>
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            margin-bottom: 12px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 300ms ease;
+            border-radius: 6px;
+        }
+
+        /* ===== COUNTER ===== */
+        .counter {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+
+        .counter-number {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        /* ===== QUESTION PANEL ===== */
+        .question-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .button-group {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+
+        .choice-btn {
+            flex: 1;
+            min-height: 56px;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .choice-btn {
+                max-width: 250px;
+            }
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .choice-btn:focus {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            background: #2d3748;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 300ms ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== CARDS GRID ===== */
+        .cards-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        /* ===== PROFILE CARD ===== */
+        .profile-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 250ms ease;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .profile-card.filtered-out {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            border: none;
+        }
+
+        .profile-card:not(.filtered-out):hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .avatar {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .profile-major {
+            font-size: 14px;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: #edf2f7;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .tag.smoking {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .tag.non-smoking {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .tag.pet-dog {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .tag.pet-cat {
+            background: #fbd38d;
+            color: #7c2d12;
+        }
+
+        .tag.pet-none {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .tag.morning-yes {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .tag.morning-no {
+            background: #e9d8fd;
+            color: #6b46c1;
+        }
+
+        .tag.morning-neither {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        /* ===== SUCCESS STATE ===== */
+        .success-state {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .success-state.show {
+            display: block;
+        }
+
+        .success-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 16px;
+        }
+
+        .success-subtitle {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 32px;
+        }
+
+        .winner-card {
+            max-width: 400px;
+            margin: 0 auto 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 32px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .winner-card .avatar {
+            font-size: 80px;
+            margin-bottom: 16px;
+        }
+
+        .winner-card .profile-name {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .winner-card .profile-major {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 16px;
+        }
+
+        .winner-card .tags {
+            margin-top: 16px;
+        }
+
+        .winner-card .tag {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .restart-btn {
+            padding: 16px 48px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .restart-btn:focus {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* ===== HIDDEN CLASS ===== */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with progress and counter -->
+        <div class="header">
+            <h1>🎓 Find Your Perfect Roommate</h1>
+
+            <div class="progress-container">
+                <div class="progress-label" id="progressLabel">Round 1 of 3</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 33.33%;"></div>
+                </div>
+            </div>
+
+            <div class="counter">
+                <span class="counter-number" id="counterNumber">10</span> candidates remaining
+            </div>
+        </div>
+
+        <!-- Question Panel -->
+        <div class="question-panel" id="questionPanel">
+            <div class="question-text" id="questionText">Do you smoke?</div>
+            <div class="toast" id="toast"></div>
+            <div class="button-group" id="buttonGroup">
+                <!-- Buttons will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="cards-container" id="cardsContainer">
+            <div class="cards-grid" id="cardsGrid">
+                <!-- Cards will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div class="success-state" id="successState">
+            <div class="success-title">🎉 You have found your perfect roommate!</div>
+            <div class="success-subtitle">Here's your ideal match:</div>
+            <div class="winner-card" id="winnerCard">
+                <!-- Winner card will be populated -->
+            </div>
+            <button class="restart-btn" id="restartBtn" tabindex="0">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA: 10 PROFILES WITH EXACT REQUIREMENTS =====
+        // 3 smokers, 7 non-smokers
+        // 6 pet owners (3 dog, 3 cat) + 4 no pets
+        // Morning: 3 yes, 3 no, 4 neither
+        const PROFILES = [
+            { id: 1, name: "Alex Chen", major: "Computer Science", avatar: "👨‍💻", smokes: false, pet: "dog", morning: "yes" },
+            { id: 2, name: "Sarah Johnson", major: "Biology", avatar: "👩‍🔬", smokes: true, pet: "cat", morning: "no" },
+            { id: 3, name: "Marcus Davis", major: "Engineering", avatar: "👨‍🔧", smokes: false, pet: "none", morning: "neither" },
+            { id: 4, name: "Emma Wilson", major: "Literature", avatar: "👩‍🎓", smokes: false, pet: "dog", morning: "yes" },
+            { id: 5, name: "Jamal Brown", major: "Business", avatar: "👨‍💼", smokes: true, pet: "none", morning: "neither" },
+            { id: 6, name: "Lily Zhang", major: "Art", avatar: "👩‍🎨", smokes: false, pet: "cat", morning: "no" },
+            { id: 7, name: "Carlos Martinez", major: "Psychology", avatar: "👨‍⚕️", smokes: false, pet: "dog", morning: "neither" },
+            { id: 8, name: "Priya Patel", major: "Chemistry", avatar: "👩‍🔬", smokes: true, pet: "cat", morning: "yes" },
+            { id: 9, name: "Ryan O'Connor", major: "Economics", avatar: "👨‍🎓", smokes: false, pet: "none", morning: "no" },
+            { id: 10, name: "Maya Thompson", major: "Music", avatar: "👩‍🎤", smokes: false, pet: "none", morning: "neither" }
+        ];
+
+        // ===== GLOBAL STATE =====
+        let currentRound = 1;
+        let activeProfiles = [...PROFILES]; // Copy of all profiles
+        let filteredProfiles = [...PROFILES]; // Currently visible profiles
+
+        // ===== ROUND QUESTIONS AND CHOICES =====
+        const ROUNDS = {
+            1: {
+                question: "Do you smoke?",
+                choices: ["Yes", "No", "I don't mind"]
+            },
+            2: {
+                question: "Do you have pet allergies?",
+                choices: ["Yes", "No", "I just don't want pet"]
+            },
+            3: {
+                question: "Are you a morning person?",
+                choices: ["Yes", "No", "Neither"]
+            }
+        };
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCards();
+            renderButtons();
+            attachRestartHandler();
+        });
+
+        // ===== RENDER PROFILE CARDS =====
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            PROFILES.forEach(profile => {
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+                card.id = `card-${profile.id}`;
+
+                // Check if this profile should be filtered out
+                const isVisible = filteredProfiles.some(p => p.id === profile.id);
+                if (!isVisible) {
+                    card.classList.add('filtered-out');
+                }
+
+                card.innerHTML = `
+                    <div class="avatar">${profile.avatar}</div>
+                    <div class="profile-name">${profile.name}</div>
+                    <div class="profile-major">${profile.major}</div>
+                    <div class="tags">
+                        <span class="tag ${profile.smokes ? 'smoking' : 'non-smoking'}">
+                            ${profile.smokes ? 'Smokes' : 'Non-smoker'}
+                        </span>
+                        <span class="tag pet-${profile.pet}">
+                            ${profile.pet === 'dog' ? '🐕 Dog' : profile.pet === 'cat' ? '🐱 Cat' : 'No pets'}
+                        </span>
+                        <span class="tag morning-${profile.morning}">
+                            ${profile.morning === 'yes' ? '🌅 Morning' : profile.morning === 'no' ? '🌙 Night owl' : '⏰ Flexible'}
+                        </span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            updateCounter();
+        }
+
+        // ===== RENDER BUTTONS FOR CURRENT ROUND =====
+        function renderButtons() {
+            const buttonGroup = document.getElementById('buttonGroup');
+            const questionText = document.getElementById('questionText');
+
+            const roundData = ROUNDS[currentRound];
+            questionText.textContent = roundData.question;
+
+            buttonGroup.innerHTML = '';
+
+            roundData.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice;
+                btn.setAttribute('tabindex', '0');
+
+                // Click handler
+                btn.addEventListener('click', () => handleChoice(choice));
+
+                // Keyboard accessibility (Enter and Space)
+                btn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleChoice(choice);
+                    }
+                });
+
+                buttonGroup.appendChild(btn);
+            });
+        }
+
+        // ===== HANDLE USER CHOICE =====
+        function handleChoice(choice) {
+            if (currentRound === 1) {
+                applyRound1(choice);
+            } else if (currentRound === 2) {
+                applyRound2(choice);
+            } else if (currentRound === 3) {
+                applyRound3(choice);
+            }
+        }
+
+        // ===== ROUND 1: SMOKING FILTER =====
+        function applyRound1(choice) {
+            if (choice === "No") {
+                // Filter out smokers
+                filteredProfiles = filteredProfiles.filter(p => !p.smokes);
+                showToast("Filtered out smokers");
+            } else if (choice === "Yes") {
+                // Keep only smokers (or all if user smokes)
+                showToast("Kept all candidates");
+            } else {
+                // "I don't mind" - keep all
+                showToast("Kept all candidates");
+            }
+
+            applyFilterAnimation();
+            advanceRound();
+        }
+
+        // ===== ROUND 2: PET FILTER =====
+        function applyRound2(choice) {
+            if (choice === "Yes" || choice === "I just don't want pet") {
+                // Filter to only no-pet profiles
+                filteredProfiles = filteredProfiles.filter(p => p.pet === "none");
+                showToast("Filtered to no-pet profiles");
+            } else {
+                // "No" - no allergies, keep pet owners
+                showToast("Kept pet owners");
+            }
+
+            applyFilterAnimation();
+            advanceRound();
+        }
+
+        // ===== ROUND 3: MORNING PERSON FILTER (FINAL MATCH) =====
+        function applyRound3(choice) {
+            const preference = choice.toLowerCase();
+
+            // Try to find exact match
+            let match = filteredProfiles.find(p => p.morning === preference);
+
+            // If no exact match, pick first available (closest match)
+            if (!match && filteredProfiles.length > 0) {
+                match = filteredProfiles[0];
+                showToast("Found closest match");
+            } else if (match) {
+                showToast("Found perfect match!");
+            }
+
+            // Keep only the winner
+            if (match) {
+                filteredProfiles = [match];
+            }
+
+            applyFilterAnimation();
+
+            // Show success state after animation completes
+            setTimeout(() => {
+                showSuccessState();
+            }, 300);
+        }
+
+        // ===== APPLY FILTER ANIMATION =====
+        function applyFilterAnimation() {
+            PROFILES.forEach(profile => {
+                const card = document.getElementById(`card-${profile.id}`);
+                const isVisible = filteredProfiles.some(p => p.id === profile.id);
+
+                if (!isVisible && !card.classList.contains('filtered-out')) {
+                    card.classList.add('filtered-out');
+                }
+            });
+
+            updateCounter();
+        }
+
+        // ===== UPDATE COUNTER =====
+        function updateCounter() {
+            const counter = document.getElementById('counterNumber');
+            counter.textContent = filteredProfiles.length;
+        }
+
+        // ===== SHOW TOAST NOTIFICATION =====
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // ===== ADVANCE TO NEXT ROUND =====
+        function advanceRound() {
+            currentRound++;
+
+            if (currentRound <= 3) {
+                updateProgress();
+                renderButtons();
+            }
+        }
+
+        // ===== UPDATE PROGRESS BAR =====
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const progressLabel = document.getElementById('progressLabel');
+
+            const percentage = (currentRound / 3) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressLabel.textContent = `Round ${currentRound} of 3`;
+        }
+
+        // ===== SHOW SUCCESS STATE =====
+        function showSuccessState() {
+            const questionPanel = document.getElementById('questionPanel');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const successState = document.getElementById('successState');
+            const winnerCard = document.getElementById('winnerCard');
+
+            // Hide question panel and cards
+            questionPanel.classList.add('hidden');
+            cardsContainer.classList.add('hidden');
+
+            // Show success state
+            successState.classList.add('show');
+
+            // Populate winner card
+            if (filteredProfiles.length > 0) {
+                const winner = filteredProfiles[0];
+                winnerCard.innerHTML = `
+                    <div class="avatar">${winner.avatar}</div>
+                    <div class="profile-name">${winner.name}</div>
+                    <div class="profile-major">${winner.major}</div>
+                    <div class="tags">
+                        <span class="tag">
+                            ${winner.smokes ? 'Smokes' : 'Non-smoker'}
+                        </span>
+                        <span class="tag">
+                            ${winner.pet === 'dog' ? '🐕 Dog' : winner.pet === 'cat' ? '🐱 Cat' : 'No pets'}
+                        </span>
+                        <span class="tag">
+                            ${winner.morning === 'yes' ? '🌅 Morning' : winner.morning === 'no' ? '🌙 Night owl' : '⏰ Flexible'}
+                        </span>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== RESET/RESTART FUNCTIONALITY =====
+        function reset() {
+            // Reset state
+            currentRound = 1;
+            filteredProfiles = [...PROFILES];
+
+            // Reset UI
+            const questionPanel = document.getElementById('questionPanel');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const successState = document.getElementById('successState');
+
+            questionPanel.classList.remove('hidden');
+            cardsContainer.classList.remove('hidden');
+            successState.classList.remove('show');
+
+            // Re-render
+            renderCards();
+            renderButtons();
+            updateProgress();
+        }
+
+        // ===== ATTACH RESTART BUTTON HANDLER =====
+        function attachRestartHandler() {
+            const restartBtn = document.getElementById('restartBtn');
+
+            restartBtn.addEventListener('click', reset);
+
+            // Keyboard accessibility for restart button
+            restartBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    reset();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
