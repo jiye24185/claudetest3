@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Paths - Your Story</title>
+    <style>
+        /* ===== CSS RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg: #0f0f23;
+            --color-surface: #1a1a2e;
+            --color-surface-hover: #252540;
+            --color-text: #e8e8f0;
+            --color-text-dim: #a0a0b8;
+            --color-primary: #4a9eff;
+            --color-primary-hover: #6bb3ff;
+            --color-wealth: #ffd700;
+            --color-relationships: #ff6b9d;
+            --color-wellbeing: #4ecdc4;
+            --color-success: #52c41a;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== LAYOUT CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            text-align: center;
+            padding: 2rem 0 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-wellbeing));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--color-text-dim);
+            font-size: 0.95rem;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .stage-label {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .age-label {
+            color: var(--color-text-dim);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-wellbeing));
+            border-radius: 4px;
+            transition: width 300ms ease-out;
+        }
+
+        /* ===== METERS ===== */
+        .meters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .meter {
+            background: var(--color-surface);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .meter-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meter-icon {
+            font-size: 1.2rem;
+        }
+
+        .meter-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .meter-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width var(--transition), background-color var(--transition);
+        }
+
+        .meter[data-meter="wealth"] .meter-bar-fill {
+            background: var(--color-wealth);
+        }
+
+        .meter[data-meter="relationships"] .meter-bar-fill {
+            background: var(--color-relationships);
+        }
+
+        .meter[data-meter="wellbeing"] .meter-bar-fill {
+            background: var(--color-wellbeing);
+        }
+
+        /* Pulse animation for meter changes */
+        @keyframes meterPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .meter.pulse {
+            animation: meterPulse 300ms ease-out;
+        }
+
+        /* ===== STAGE AREA ===== */
+        .stage-area {
+            margin: 2rem 0;
+        }
+
+        .stage-question {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .stage-question h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-question p {
+            color: var(--color-text-dim);
+            font-size: 1rem;
+        }
+
+        /* ===== CHOICE BUTTONS ===== */
+        .choices {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .choice-btn {
+            background: var(--color-surface);
+            border: 2px solid transparent;
+            color: var(--color-text);
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .choice-btn:hover {
+            background: var(--color-surface-hover);
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .choice-btn:focus {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ===== EVENT CARDS ===== */
+        .events-section {
+            margin: 2rem 0;
+        }
+
+        .events-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-dim);
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            min-height: 120px;
+        }
+
+        .event-card {
+            background: var(--color-surface);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            border-left: 3px solid var(--color-primary);
+            animation: cardFadeIn 300ms ease-out;
+        }
+
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .event-card.highlight {
+            animation: cardHighlight 300ms ease-out;
+        }
+
+        @keyframes cardHighlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .event-card .event-age {
+            font-size: 0.8rem;
+            color: var(--color-text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .event-card .event-text {
+            font-size: 0.95rem;
+        }
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 350px;
+        }
+
+        .toast {
+            background: var(--color-surface);
+            color: var(--color-text);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--color-primary);
+            animation: toastSlideIn 300ms ease-out;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.exit {
+            animation: toastSlideOut 300ms ease-out forwards;
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        /* ===== EPILOGUE ===== */
+        .epilogue {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--color-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 500ms ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .epilogue h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--color-primary);
+        }
+
+        .epilogue-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            color: var(--color-text);
+        }
+
+        .final-meters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .final-meter {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .final-meter-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .final-meter-name {
+            font-size: 0.9rem;
+            color: var(--color-text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .final-meter-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .highlights {
+            margin-bottom: 2rem;
+        }
+
+        .highlights h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-dim);
+        }
+
+        .highlights ul {
+            list-style: none;
+        }
+
+        .highlights li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .highlights li:before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+        }
+
+        .epilogue-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--color-text-dim);
+            margin: 2rem 0 1.5rem;
+        }
+
+        .epilogue-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: none;
+            min-height: 48px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 2px solid var(--color-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-surface-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:focus, .btn-secondary:focus {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        /* ===== HIDDEN STATE ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .stage-question h2 {
+                font-size: 1.25rem;
+            }
+
+            .meters {
+                grid-template-columns: 1fr;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .epilogue {
+                padding: 1.5rem;
+            }
+
+            .epilogue-actions {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast support */
+        @media (prefers-contrast: high) {
+            :root {
+                --color-bg: #000000;
+                --color-surface: #1a1a1a;
+                --color-text: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Life Paths</h1>
+            <p class="subtitle">Every choice writes your story</p>
+        </header>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span class="stage-label" id="stageLabel">Stage 1/5</span>
+                <span class="age-label" id="ageLabel">Age 18</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <!-- Meters -->
+        <div class="meters">
+            <div class="meter" data-meter="wealth">
+                <div class="meter-header">
+                    <span class="meter-name">
+                        <span class="meter-icon">💰</span>
+                        Wealth
+                    </span>
+                    <span class="meter-value" id="wealthValue">5</span>
+                </div>
+                <div class="meter-bar">
+                    <div class="meter-bar-fill" id="wealthBar" style="width: 50%"></div>
+                </div>
+            </div>
+            <div class="meter" data-meter="relationships">
+                <div class="meter-header">
+                    <span class="meter-name">
+                        <span class="meter-icon">❤️</span>
+                        Relationships
+                    </span>
+                    <span class="meter-value" id="relationshipsValue">5</span>
+                </div>
+                <div class="meter-bar">
+                    <div class="meter-bar-fill" id="relationshipsBar" style="width: 50%"></div>
+                </div>
+            </div>
+            <div class="meter" data-meter="wellbeing">
+                <div class="meter-header">
+                    <span class="meter-name">
+                        <span class="meter-icon">✨</span>
+                        Wellbeing
+                    </span>
+                    <span class="meter-value" id="wellbeingValue">5</span>
+                </div>
+                <div class="meter-bar">
+                    <div class="meter-bar-fill" id="wellbeingBar" style="width: 50%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage Area -->
+        <div class="stage-area" id="stageArea">
+            <div class="stage-question">
+                <h2 id="questionText">What's next after high school?</h2>
+                <p id="questionSubtext">Your future awaits...</p>
+            </div>
+            <div class="choices" id="choicesContainer"></div>
+        </div>
+
+        <!-- Events -->
+        <div class="events-section">
+            <h3>Your Life Events</h3>
+            <div class="events-grid" id="eventsGrid"></div>
+        </div>
+
+        <!-- Epilogue (hidden initially) -->
+        <div class="epilogue hidden" id="epilogue"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        /* ===== GAME STATE ===== */
+        const gameState = {
+            currentStage: 1,
+            choices: [], // Store user choices
+            meters: {
+                wealth: 5,
+                relationships: 5,
+                wellbeing: 5
+            },
+            events: [], // Life events that occurred
+            thresholdEvents: new Set() // Track triggered threshold events
+        };
+
+        /* ===== GAME DATA ===== */
+        const stages = [
+            {
+                stage: 1,
+                age: 18,
+                ageRange: "Age 18",
+                question: "What's next after high school?",
+                subtext: "Your future awaits...",
+                choices: [
+                    {
+                        text: "Go straight to career",
+                        effects: { wealth: 2, relationships: -1, wellbeing: 0 },
+                        toast: "Because you chose a career path, you're building financial stability early.",
+                        event: "Started working full-time"
+                    },
+                    {
+                        text: "Take a gap year",
+                        effects: { wealth: -1, relationships: 1, wellbeing: 2 },
+                        toast: "Because you chose a gap year, you're discovering yourself and the world.",
+                        event: "Explored the world in a gap year"
+                    },
+                    {
+                        text: "Go to college",
+                        effects: { wealth: 0, relationships: 1, wellbeing: 0 },
+                        toast: "Because you chose college, you're investing in knowledge and connections.",
+                        event: "Pursued higher education"
+                    }
+                ]
+            },
+            {
+                stage: 2,
+                age: 23,
+                ageRange: "Early 20s",
+                question: "Where do you lean?",
+                subtext: "Finding your focus...",
+                choices: [
+                    {
+                        text: "Marry or commit to a partner",
+                        effects: { wealth: 0, relationships: 3, wellbeing: 1 },
+                        toast: "Because you chose commitment, you're building a life partnership.",
+                        event: "Found a life partner"
+                    },
+                    {
+                        text: "Focus on career growth",
+                        effects: { wealth: 2, relationships: -1, wellbeing: -1 },
+                        toast: "Because you chose career growth, you're climbing the ladder with dedication.",
+                        event: "Accelerated career development"
+                    },
+                    {
+                        text: "See the world",
+                        effects: { wealth: -1, relationships: 0, wellbeing: 2 },
+                        toast: "Because you chose to travel, you're collecting experiences and perspectives.",
+                        event: "Traveled extensively"
+                    }
+                ]
+            },
+            {
+                stage: 3,
+                age: 28,
+                ageRange: "Late 20s/30s",
+                question: "What about family?",
+                subtext: "Considering your legacy...",
+                choices: [
+                    {
+                        text: "Have kids",
+                        effects: { wealth: -1, relationships: 2, wellbeing: 1 },
+                        toast: "Because you chose parenthood, you're nurturing the next generation.",
+                        event: "Became a parent"
+                    },
+                    {
+                        text: "No kids - other priorities",
+                        effects: { wealth: 1, relationships: 0, wellbeing: 1 },
+                        toast: "Because you chose independence, you're pursuing your own path freely.",
+                        event: "Chose a child-free life"
+                    },
+                    {
+                        text: "Maybe later",
+                        effects: { wealth: 0, relationships: 0, wellbeing: 0 },
+                        toast: "Because you chose flexibility, you're keeping options open.",
+                        event: "Kept family options open"
+                    }
+                ]
+            },
+            {
+                stage: 4,
+                age: 45,
+                ageRange: "40s/50s - Midlife",
+                question: "How do you respond to the midlife wobble?",
+                subtext: "Reassessing and realigning...",
+                choices: [
+                    {
+                        text: "Work even harder",
+                        effects: { wealth: 2, relationships: -1, wellbeing: -1 },
+                        toast: "Because you chose to double down, you're securing your financial future.",
+                        event: "Intensified work efforts"
+                    },
+                    {
+                        text: "Pivot to a new career",
+                        effects: { wealth: -1, relationships: 1, wellbeing: 2 },
+                        toast: "Because you chose to pivot, your skills broadened and passion reignited.",
+                        event: "Made a bold career change"
+                    },
+                    {
+                        text: "Take a sabbatical",
+                        effects: { wealth: -1, relationships: 0, wellbeing: 3 },
+                        toast: "Because you chose rest, you're rediscovering play and purpose.",
+                        event: "Took a transformative sabbatical"
+                    }
+                ]
+            },
+            {
+                stage: 5,
+                age: 65,
+                ageRange: "60s+",
+                question: "What's your later-life plan?",
+                subtext: "Embracing the next chapter...",
+                choices: [
+                    {
+                        text: "Keep working - I love it",
+                        effects: { wealth: 1, relationships: 0, wellbeing: 1 },
+                        toast: "Because you chose to continue, you're staying engaged and purposeful.",
+                        event: "Continued working passionately"
+                    },
+                    {
+                        text: "Semi-retire - balance",
+                        effects: { wealth: 0, relationships: 1, wellbeing: 2 },
+                        toast: "Because you chose balance, you're blending work, rest, and mentorship.",
+                        event: "Found work-life harmony"
+                    },
+                    {
+                        text: "Fully retire - enjoy life",
+                        effects: { wealth: 0, relationships: 2, wellbeing: 1 },
+                        toast: "Because you chose retirement, you're savoring time with loved ones.",
+                        event: "Embraced full retirement"
+                    }
+                ]
+            }
+        ];
+
+        /* ===== THRESHOLD EVENTS ===== */
+        // Events that trigger when certain meter thresholds are crossed
+        const thresholdRules = [
+            {
+                id: "wealthy",
+                condition: (state) => state.meters.wealth >= 8,
+                event: "Built significant wealth",
+                age: null // Will be set when triggered
+            },
+            {
+                id: "community",
+                condition: (state) => state.meters.relationships >= 8,
+                event: "Found a deep community",
+                age: null
+            },
+            {
+                id: "balanced",
+                condition: (state) => state.meters.wellbeing >= 8,
+                event: "Achieved inner peace",
+                age: null
+            },
+            {
+                id: "struggle-wealth",
+                condition: (state) => state.meters.wealth <= 2,
+                event: "Faced financial challenges",
+                age: null
+            },
+            {
+                id: "isolated",
+                condition: (state) => state.meters.relationships <= 2,
+                event: "Experienced periods of solitude",
+                age: null
+            },
+            {
+                id: "burnout",
+                condition: (state) => state.meters.wellbeing <= 2,
+                event: "Struggled with burnout",
+                age: null
+            }
+        ];
+
+        /* ===== RENDER STAGE ===== */
+        /**
+         * Renders the current stage with question and choice buttons
+         */
+        function renderStage() {
+            const stage = stages[gameState.currentStage - 1];
+
+            // Update progress
+            document.getElementById('stageLabel').textContent = `Stage ${gameState.currentStage}/5`;
+            document.getElementById('ageLabel').textContent = stage.ageRange;
+            document.getElementById('progressFill').style.width = `${(gameState.currentStage / 5) * 100}%`;
+
+            // Update question
+            document.getElementById('questionText').textContent = stage.question;
+            document.getElementById('questionSubtext').textContent = stage.subtext;
+
+            // Render choices
+            const choicesContainer = document.getElementById('choicesContainer');
+            choicesContainer.innerHTML = '';
+
+            stage.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.textContent = choice.text;
+                button.setAttribute('aria-label', choice.text);
+                button.addEventListener('click', () => applyChoice(gameState.currentStage, index));
+
+                // Keyboard navigation
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        applyChoice(gameState.currentStage, index);
+                    }
+                });
+
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        /* ===== APPLY CHOICE ===== */
+        /**
+         * Applies the selected choice and updates game state
+         * @param {number} stageNum - Current stage number
+         * @param {number} optionIndex - Index of selected choice
+         */
+        function applyChoice(stageNum, optionIndex) {
+            const stage = stages[stageNum - 1];
+            const choice = stage.choices[optionIndex];
+
+            // Store the choice
+            gameState.choices.push({
+                stage: stageNum,
+                age: stage.age,
+                choice: choice.text,
+                event: choice.event
+            });
+
+            // Add event card
+            addEventCard(stage.age, choice.event);
+
+            // Update meters
+            updateMeters(choice.effects);
+
+            // Show toast notification
+            showToast(choice.toast);
+
+            // Check for threshold events
+            triggerEvents(stage.age);
+
+            // Move to next stage or show epilogue
+            if (gameState.currentStage < 5) {
+                gameState.currentStage++;
+                setTimeout(() => {
+                    renderStage();
+                }, 400);
+            } else {
+                // Game complete - show epilogue
+                setTimeout(() => {
+                    showEpilogue();
+                }, 400);
+            }
+        }
+
+        /* ===== UPDATE METERS ===== */
+        /**
+         * Updates meter values based on choice effects
+         * @param {Object} effects - Object with meter changes {wealth, relationships, wellbeing}
+         */
+        function updateMeters(effects) {
+            Object.keys(effects).forEach(meter => {
+                const change = effects[meter];
+                if (change === 0) return;
+
+                // Update value (clamp at 0 minimum, 10 maximum)
+                gameState.meters[meter] = Math.max(0, Math.min(10, gameState.meters[meter] + change));
+
+                // Update UI
+                const valueEl = document.getElementById(`${meter}Value`);
+                const barEl = document.getElementById(`${meter}Bar`);
+                const meterEl = document.querySelector(`.meter[data-meter="${meter}"]`);
+
+                valueEl.textContent = gameState.meters[meter];
+                barEl.style.width = `${(gameState.meters[meter] / 10) * 100}%`;
+
+                // Add pulse animation
+                meterEl.classList.add('pulse');
+                setTimeout(() => meterEl.classList.remove('pulse'), 300);
+            });
+        }
+
+        /* ===== TRIGGER EVENTS ===== */
+        /**
+         * Checks threshold rules and triggers micro-events
+         * @param {number} currentAge - Current age in the game
+         */
+        function triggerEvents(currentAge) {
+            thresholdRules.forEach(rule => {
+                // Only trigger if not already triggered and condition is met
+                if (!gameState.thresholdEvents.has(rule.id) && rule.condition(gameState)) {
+                    gameState.thresholdEvents.add(rule.id);
+                    addEventCard(currentAge, rule.event, true); // true = highlight
+                }
+            });
+        }
+
+        /* ===== ADD EVENT CARD ===== */
+        /**
+         * Adds an event card to the events grid
+         * @param {number} age - Age when event occurred
+         * @param {string} eventText - Description of the event
+         * @param {boolean} highlight - Whether to highlight (animate) the card
+         */
+        function addEventCard(age, eventText, highlight = false) {
+            const eventsGrid = document.getElementById('eventsGrid');
+
+            const card = document.createElement('div');
+            card.className = 'event-card';
+            if (highlight) card.classList.add('highlight');
+
+            card.innerHTML = `
+                <div class="event-age">Age ${age}</div>
+                <div class="event-text">${eventText}</div>
+            `;
+
+            eventsGrid.appendChild(card);
+
+            // Store in game state
+            gameState.events.push({ age, text: eventText });
+        }
+
+        /* ===== SHOW TOAST ===== */
+        /**
+         * Displays a toast notification
+         * @param {string} message - Toast message
+         */
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+
+            container.appendChild(toast);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /* ===== COMPOSE EPILOGUE ===== */
+        /**
+         * Generates a personalized epilogue based on choices and outcomes
+         * @returns {string} - Epilogue text (100-140 words)
+         */
+        function composeEpilogue() {
+            const choices = gameState.choices;
+            const meters = gameState.meters;
+
+            // Determine overall life path archetype
+            let archetype = "";
+            let archetypeDesc = "";
+
+            if (meters.wealth >= 7 && meters.relationships <= 4) {
+                archetype = "The Achiever";
+                archetypeDesc = "You climbed high, trading time for treasure.";
+            } else if (meters.relationships >= 7 && meters.wealth <= 4) {
+                archetype = "The Nurturer";
+                archetypeDesc = "You invested in people, and they became your wealth.";
+            } else if (meters.wellbeing >= 7) {
+                archetype = "The Seeker";
+                archetypeDesc = "You prioritized inner peace and found contentment.";
+            } else if (meters.wealth >= 6 && meters.relationships >= 6 && meters.wellbeing >= 6) {
+                archetype = "The Balanced";
+                archetypeDesc = "You walked the middle path with grace.";
+            } else {
+                archetype = "The Wanderer";
+                archetypeDesc = "You followed your heart, wherever it led.";
+            }
+
+            // Build narrative from choices
+            const ch = choices.map(c => c.choice);
+
+            let narrative = `You began by choosing to ${ch[0].toLowerCase()}. `;
+
+            if (ch[1].includes("Marry") || ch[1].includes("commit")) {
+                narrative += `In your twenties, you found love and commitment. `;
+            } else if (ch[1].includes("career")) {
+                narrative += `You pushed hard in your career, building momentum. `;
+            } else {
+                narrative += `Adventure called, and you answered. `;
+            }
+
+            if (ch[2].includes("kids")) {
+                narrative += `Parenthood reshaped your world. `;
+            } else if (ch[2].includes("No kids")) {
+                narrative += `You charted a different course, free to roam. `;
+            } else {
+                narrative += `You kept doors open, flexible and curious. `;
+            }
+
+            if (ch[3].includes("Work even")) {
+                narrative += `Midlife found you doubling down on work. `;
+            } else if (ch[3].includes("Pivot")) {
+                narrative += `You reinvented yourself when others settled. `;
+            } else {
+                narrative += `You stepped back, rediscovered play, and breathed. `;
+            }
+
+            if (ch[4].includes("Keep working")) {
+                narrative += `And you never stopped—work was your joy. `;
+            } else if (ch[4].includes("Semi-retire")) {
+                narrative += `Finally, you found the balance you'd been seeking, mentoring the next wave. `;
+            } else {
+                narrative += `Retirement became your canvas for new adventures. `;
+            }
+
+            // Add outcome reflection
+            if (meters.wealth >= 7) {
+                narrative += `You built stability and comfort. `;
+            }
+            if (meters.relationships >= 7) {
+                narrative += `You surrounded yourself with love. `;
+            }
+            if (meters.wellbeing >= 7) {
+                narrative += `You found peace within. `;
+            }
+
+            narrative += archetypeDesc;
+
+            return narrative;
+        }
+
+        /* ===== SHOW EPILOGUE ===== */
+        /**
+         * Displays the final epilogue screen
+         */
+        function showEpilogue() {
+            // Hide stage area
+            document.getElementById('stageArea').classList.add('hidden');
+
+            // Generate epilogue
+            const epilogueText = composeEpilogue();
+
+            // Select 3-5 highlights from events
+            const highlights = gameState.events
+                .sort(() => Math.random() - 0.5) // Shuffle
+                .slice(0, Math.min(5, gameState.events.length))
+                .map(e => `${e.text} (Age ${e.age})`);
+
+            // Build epilogue HTML
+            const epilogueHTML = `
+                <h2>Your Life Story</h2>
+                <div class="epilogue-text">${epilogueText}</div>
+
+                <div class="final-meters">
+                    <div class="final-meter">
+                        <div class="final-meter-icon">💰</div>
+                        <div class="final-meter-name">Wealth</div>
+                        <div class="final-meter-value">${gameState.meters.wealth}/10</div>
+                    </div>
+                    <div class="final-meter">
+                        <div class="final-meter-icon">❤️</div>
+                        <div class="final-meter-name">Relationships</div>
+                        <div class="final-meter-value">${gameState.meters.relationships}/10</div>
+                    </div>
+                    <div class="final-meter">
+                        <div class="final-meter-icon">✨</div>
+                        <div class="final-meter-name">Wellbeing</div>
+                        <div class="final-meter-value">${gameState.meters.wellbeing}/10</div>
+                    </div>
+                </div>
+
+                <div class="highlights">
+                    <h3>Life Highlights</h3>
+                    <ul>
+                        ${highlights.map(h => `<li>${h}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="epilogue-title">This is one version of your life.</div>
+
+                <div class="epilogue-actions">
+                    <button class="btn-primary" onclick="reset()" aria-label="Replay with different choices">
+                        Replay with different choices
+                    </button>
+                    <button class="btn-secondary" onclick="shareSummary()" aria-label="Share your life summary">
+                        Share summary
+                    </button>
+                </div>
+            `;
+
+            const epilogueEl = document.getElementById('epilogue');
+            epilogueEl.innerHTML = epilogueHTML;
+            epilogueEl.classList.remove('hidden');
+        }
+
+        /* ===== RESET GAME ===== */
+        /**
+         * Resets the game to initial state
+         */
+        function reset() {
+            // Reset state
+            gameState.currentStage = 1;
+            gameState.choices = [];
+            gameState.meters = { wealth: 5, relationships: 5, wellbeing: 5 };
+            gameState.events = [];
+            gameState.thresholdEvents.clear();
+
+            // Clear events grid
+            document.getElementById('eventsGrid').innerHTML = '';
+
+            // Hide epilogue
+            document.getElementById('epilogue').classList.add('hidden');
+
+            // Show stage area
+            document.getElementById('stageArea').classList.remove('hidden');
+
+            // Reset meters UI
+            updateMeters({ wealth: 0, relationships: 0, wellbeing: 0 });
+
+            // Render first stage
+            renderStage();
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ===== SHARE SUMMARY ===== */
+        /**
+         * Creates a shareable summary of the life journey
+         */
+        function shareSummary() {
+            const summary = `
+🌟 My Life Path Journey 🌟
+
+Final Stats:
+💰 Wealth: ${gameState.meters.wealth}/10
+❤️ Relationships: ${gameState.meters.relationships}/10
+✨ Wellbeing: ${gameState.meters.wellbeing}/10
+
+My Choices:
+${gameState.choices.map((c, i) => `${i + 1}. Age ${c.age}: ${c.choice}`).join('\n')}
+
+Play your own story at Life Paths!
+            `.trim();
+
+            // Try to use Web Share API if available
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Life Path Journey',
+                    text: summary
+                }).catch(() => {
+                    // Fallback to clipboard
+                    copyToClipboard(summary);
+                });
+            } else {
+                copyToClipboard(summary);
+            }
+        }
+
+        /* ===== COPY TO CLIPBOARD ===== */
+        /**
+         * Copies text to clipboard and shows confirmation
+         * @param {string} text - Text to copy
+         */
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Life summary copied to clipboard!');
+                }).catch(() => {
+                    showToast('Unable to copy. Please try again.');
+                });
+            } else {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Life summary copied to clipboard!');
+                } catch (err) {
+                    showToast('Unable to copy. Please try again.');
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+
+        /* ===== KEYBOARD NAVIGATION ===== */
+        /**
+         * Handle keyboard shortcuts for accessibility
+         */
+        document.addEventListener('keydown', (e) => {
+            // R key to restart (when epilogue is showing)
+            if (e.key === 'r' || e.key === 'R') {
+                if (!document.getElementById('epilogue').classList.contains('hidden')) {
+                    reset();
+                }
+            }
+        });
+
+        /* ===== INITIALIZE GAME ===== */
+        /**
+         * Start the game when page loads
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderStage();
+        });
+    </script>
+</body>
+</html>
