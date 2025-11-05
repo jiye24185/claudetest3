@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Fruit - Mini Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            background: #dee2e6;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+
+        /* Picks Display */
+        .picks-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .picks-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .picks-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: chipAppear 0.3s ease;
+        }
+
+        @keyframes chipAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Game Content */
+        .game-content {
+            padding: 40px 30px;
+            min-height: 400px;
+        }
+
+        .round-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #212529;
+        }
+
+        .round-subtitle {
+            font-size: 16px;
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        /* Choice Buttons */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            background: white;
+            border: 3px solid #dee2e6;
+            border-radius: 12px;
+            padding: 18px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .choice-btn:active {
+            transform: scale(0.98);
+        }
+
+        .choice-btn:focus {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        .choice-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            animation: buttonSelect 0.3s ease;
+        }
+
+        @keyframes buttonSelect {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Result Card */
+        .result-card {
+            text-align: center;
+            animation: resultReveal 0.3s ease;
+        }
+
+        @keyframes resultReveal {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-emoji {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: emojiPop 0.5s ease;
+        }
+
+        @keyframes emojiPop {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .result-name {
+            font-size: 36px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 12px;
+        }
+
+        .result-blurb {
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .result-explanation {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #495057;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .restart-btn:active {
+            transform: scale(0.98);
+        }
+
+        .restart-btn:focus {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #212529;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .choices-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .choice-btn {
+                border-width: 4px;
+            }
+            .choice-btn.selected {
+                border-width: 4px;
+                border-color: #000;
+            }
+        }
+
+        /* Hidden class for accessibility */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" role="main">
+        <!-- Progress Bar -->
+        <div class="progress-section" aria-live="polite">
+            <div class="progress-label" id="progress-label">Round 1 of 3</div>
+            <div class="progress-bar-container" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Your Picks Display -->
+        <div class="picks-section">
+            <div class="picks-label">Your picks:</div>
+            <div class="picks-chips" id="picks-chips" aria-live="polite" aria-atomic="true">
+                <span class="visually-hidden">No selections yet</span>
+            </div>
+        </div>
+
+        <!-- Game Content -->
+        <div class="game-content" id="game-content">
+            <!-- Dynamic content rendered by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+
+    <script>
+        // ===========================
+        // Game State & Configuration
+        // ===========================
+
+        const ROUNDS = [
+            {
+                id: 'shape',
+                title: 'Round 1: Choose a Shape',
+                subtitle: 'What shape best describes your fruit?',
+                options: ['Round', 'Oval', 'Conical', 'Rectangular/Cylindrical', 'Cluster/Bunch']
+            },
+            {
+                id: 'color',
+                title: 'Round 2: Choose a Color',
+                subtitle: 'What color is your fruit?',
+                options: ['Red', 'Orange', 'Yellow', 'Green', 'Purple']
+            },
+            {
+                id: 'taste',
+                title: 'Round 3: Choose a Taste',
+                subtitle: 'How does your fruit taste?',
+                options: ['Sweet', 'Sour', 'Bitter']
+            }
+        ];
+
+        // Fruit database with exact mappings
+        const FRUIT_MAP = {
+            'Round|Red|Sweet': { emoji: '🍎', name: 'Apple', blurb: 'A classic crisp and juicy favorite!' },
+            'Round|Orange|Bitter': { emoji: '🍊', name: 'Grapefruit', blurb: 'Tangy citrus with a bitter kick!' },
+            'Round|Orange|Sweet': { emoji: '🍊', name: 'Orange', blurb: 'Sweet and refreshing citrus!' },
+            'Round|Yellow|Sour': { emoji: '🍋', name: 'Lemon', blurb: 'Bright and zesty citrus!' },
+            'Round|Green|Sour': { emoji: '🍋', name: 'Lime', blurb: 'Tart and vibrant citrus!' },
+            'Oval|Green|Sweet': { emoji: '🍐', name: 'Pear', blurb: 'Soft and subtly sweet!' },
+            'Oval|Orange|Sweet': { emoji: '🥭', name: 'Mango', blurb: 'Tropical sweetness at its best!' },
+            'Conical|Red|Sweet': { emoji: '🍓', name: 'Strawberry', blurb: 'Juicy red berry perfection!' },
+            'Cluster/Bunch|Purple|Sweet': { emoji: '🍇', name: 'Grapes', blurb: 'Sweet little bunches of joy!' },
+            'Round|Purple|Sweet': { emoji: '🫐', name: 'Blueberry', blurb: 'Tiny bursts of sweet flavor!' },
+            'Rectangular/Cylindrical|Yellow|Sweet': { emoji: '🍌', name: 'Banana', blurb: 'Creamy and naturally sweet!' }
+        };
+
+        // Alternate mappings (randomly selected when exact match found)
+        const ALTERNATES = {
+            'Oval|Green|Sweet': [
+                { emoji: '🍐', name: 'Pear', blurb: 'Soft and subtly sweet!' },
+                { emoji: '🍉', name: 'Watermelon', blurb: 'Refreshing and hydrating!' }
+            ],
+            'Rectangular/Cylindrical|Yellow|Sweet': [
+                { emoji: '🍌', name: 'Banana', blurb: 'Creamy and naturally sweet!' },
+                { emoji: '🍍', name: 'Pineapple', blurb: 'Tropical tanginess meets sweetness!' }
+            ],
+            'Round|Purple|Sweet': [
+                { emoji: '🫐', name: 'Blueberry', blurb: 'Tiny bursts of sweet flavor!' },
+                { emoji: '🤎', name: 'Plum', blurb: 'Juicy stone fruit with deep flavor!' }
+            ]
+        };
+
+        // Game state
+        let currentRound = 0;
+        let selections = {
+            shape: null,
+            color: null,
+            taste: null
+        };
+
+        // ===========================
+        // Core Game Functions
+        // ===========================
+
+        /**
+         * Initialize the game on page load
+         */
+        function init() {
+            reset();
+        }
+
+        /**
+         * Reset the game to initial state
+         */
+        function reset() {
+            currentRound = 0;
+            selections = { shape: null, color: null, taste: null };
+            updateProgress();
+            updatePicks();
+            renderRound();
+        }
+
+        /**
+         * Render the current round's UI
+         */
+        function renderRound() {
+            const content = document.getElementById('game-content');
+
+            if (currentRound >= ROUNDS.length) {
+                // Game complete - show result
+                showResult();
+                return;
+            }
+
+            const round = ROUNDS[currentRound];
+
+            // Build the round HTML
+            let html = `
+                <h2 class="round-title">${round.title}</h2>
+                <p class="round-subtitle">${round.subtitle}</p>
+                <div class="choices-grid" role="group" aria-labelledby="round-title-${round.id}">
+            `;
+
+            round.options.forEach((option, index) => {
+                html += `
+                    <button
+                        class="choice-btn"
+                        data-option="${option}"
+                        aria-label="${option}"
+                        tabindex="0"
+                    >
+                        ${option}
+                    </button>
+                `;
+            });
+
+            html += '</div>';
+
+            content.innerHTML = html;
+
+            // Add event listeners to buttons
+            const buttons = content.querySelectorAll('.choice-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => handleChoice(btn.dataset.option));
+                btn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleChoice(btn.dataset.option);
+                    }
+                });
+            });
+
+            // Focus first button for keyboard navigation
+            if (buttons.length > 0) {
+                buttons[0].focus();
+            }
+        }
+
+        /**
+         * Handle user choice selection
+         * @param {string} option - The selected option
+         */
+        function handleChoice(option) {
+            const round = ROUNDS[currentRound];
+            applyChoice(round.id, option);
+
+            // Highlight the selected button
+            const buttons = document.querySelectorAll('.choice-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.option === option) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            // Move to next round after animation
+            setTimeout(() => {
+                currentRound++;
+                updateProgress();
+                updatePicks();
+                renderRound();
+            }, 300);
+        }
+
+        /**
+         * Apply the user's choice to game state
+         * @param {string} round - The round identifier (shape/color/taste)
+         * @param {string} option - The selected option
+         */
+        function applyChoice(round, option) {
+            selections[round] = option;
+        }
+
+        /**
+         * Update the progress bar
+         */
+        function updateProgress() {
+            const progress = ((currentRound + 1) / ROUNDS.length) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            const progressLabel = document.getElementById('progress-label');
+            const progressContainer = progressBar.parentElement;
+
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+            progressLabel.textContent = `Round ${Math.min(currentRound + 1, ROUNDS.length)} of ${ROUNDS.length}`;
+            progressContainer.setAttribute('aria-valuenow', Math.min(progress, 100));
+        }
+
+        /**
+         * Update the picks chips display
+         */
+        function updatePicks() {
+            const chipsContainer = document.getElementById('picks-chips');
+            const picks = Object.values(selections).filter(v => v !== null);
+
+            if (picks.length === 0) {
+                chipsContainer.innerHTML = '<span class="visually-hidden">No selections yet</span>';
+                return;
+            }
+
+            chipsContainer.innerHTML = picks.map(pick =>
+                `<span class="chip">${pick}</span>`
+            ).join('');
+        }
+
+        /**
+         * Get the fruit based on selections (exact match or fallback)
+         * @param {string} shape - Selected shape
+         * @param {string} color - Selected color
+         * @param {string} taste - Selected taste
+         * @returns {Object} Fruit object with emoji, name, blurb, and isExact flag
+         */
+        function getFruit(shape, color, taste) {
+            const key = `${shape}|${color}|${taste}`;
+
+            // Check for exact match
+            if (FRUIT_MAP[key]) {
+                return { ...FRUIT_MAP[key], isExact: true };
+            }
+
+            // Check for alternates
+            if (ALTERNATES[key]) {
+                const fruits = ALTERNATES[key];
+                const selected = fruits[Math.floor(Math.random() * fruits.length)];
+                return { ...selected, isExact: true };
+            }
+
+            // No exact match - use fallback
+            return fallbackMatch(shape, color, taste);
+        }
+
+        /**
+         * Fallback heuristic to find closest fruit match
+         * Priority: Taste → Color → Shape
+         * @param {string} shape - Selected shape
+         * @param {string} color - Selected color
+         * @param {string} taste - Selected taste
+         * @returns {Object} Fruit object with emoji, name, blurb, and isExact flag
+         */
+        function fallbackMatch(shape, color, taste) {
+            // Priority 1: Taste-based matching
+            if (taste === 'Bitter') {
+                return {
+                    emoji: '🍊',
+                    name: 'Grapefruit',
+                    blurb: 'Tangy citrus with a bitter kick!',
+                    isExact: false
+                };
+            }
+
+            // Priority 2: Taste + Color combinations
+            if (taste === 'Sour' && color === 'Yellow') {
+                return {
+                    emoji: '🍋',
+                    name: 'Lemon',
+                    blurb: 'Bright and zesty citrus!',
+                    isExact: false
+                };
+            }
+
+            if (taste === 'Sour' && color === 'Green') {
+                return {
+                    emoji: '🍋',
+                    name: 'Lime',
+                    blurb: 'Tart and vibrant citrus!',
+                    isExact: false
+                };
+            }
+
+            // Priority 3: Sweet combinations
+            if (taste === 'Sweet' && (shape === 'Cluster/Bunch' || shape === 'Cluster')) {
+                return {
+                    emoji: '🍇',
+                    name: 'Grapes',
+                    blurb: 'Sweet little bunches of joy!',
+                    isExact: false
+                };
+            }
+
+            if (taste === 'Sweet' && color === 'Red') {
+                return {
+                    emoji: '🍎',
+                    name: 'Apple',
+                    blurb: 'A classic crisp and juicy favorite!',
+                    isExact: false
+                };
+            }
+
+            if (taste === 'Sweet' && color === 'Orange') {
+                return {
+                    emoji: '🍊',
+                    name: 'Orange',
+                    blurb: 'Sweet and refreshing citrus!',
+                    isExact: false
+                };
+            }
+
+            if (taste === 'Sweet' && color === 'Yellow') {
+                return {
+                    emoji: '🍌',
+                    name: 'Banana',
+                    blurb: 'Creamy and naturally sweet!',
+                    isExact: false
+                };
+            }
+
+            if (taste === 'Sweet' && color === 'Purple') {
+                return {
+                    emoji: '🍇',
+                    name: 'Grapes',
+                    blurb: 'Sweet little bunches of joy!',
+                    isExact: false
+                };
+            }
+
+            // Default fallback
+            return {
+                emoji: '🍎',
+                name: 'Apple',
+                blurb: 'A classic crisp and juicy favorite!',
+                isExact: false
+            };
+        }
+
+        /**
+         * Show the result screen with the matched fruit
+         */
+        function showResult() {
+            const { shape, color, taste } = selections;
+            const fruit = getFruit(shape, color, taste);
+
+            // Show toast if using fallback
+            if (!fruit.isExact) {
+                showToast('Closest match based on your selections');
+            }
+
+            // Build explanation text
+            const explanation = `${shape} + ${color} + ${taste} → These are common traits of ${fruit.emoji} ${fruit.name}!`;
+
+            // Render result card
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <div class="result-card">
+                    <div class="result-emoji" role="img" aria-label="${fruit.name} emoji">${fruit.emoji}</div>
+                    <h2 class="result-name">${fruit.name}</h2>
+                    <p class="result-blurb">${fruit.blurb}</p>
+                    <div class="result-explanation" role="status">
+                        ${explanation}
+                    </div>
+                    <button class="restart-btn" onclick="reset()" aria-label="Restart game">
+                        Play Again
+                    </button>
+                </div>
+            `;
+        }
+
+        /**
+         * Show a toast notification
+         * @param {string} message - The message to display
+         */
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ===========================
+        // Initialize Game
+        // ===========================
+
+        // Start the game when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
